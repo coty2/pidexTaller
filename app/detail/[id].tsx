@@ -1,14 +1,12 @@
 // Cada tarjeta de contenido audiovisual
+import Badge from '@/src/components/Badge';
 import { TextPressStart2P } from '@/src/components/TextPressStart2P';
 import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
-import { generosContenidoAudiovisual } from '@/src/data/generosContenidoAudiovisual';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-function getGeneroPorId(id: number) {
-    return generosContenidoAudiovisual.find(g => g.id === id)?.nombre ?? '-';
-}
+
 
 export default function DetailScreen() {
     const { id } = useLocalSearchParams();
@@ -41,10 +39,9 @@ return (
                 <TextPressStart2P style={styles.genre}>Genres</TextPressStart2P>
             <View style={styles.genresContainer}>
                 {content.generos.map((genreId) => (
-                    <View key={genreId} style={styles.genreTag}>
-                        <Text style={styles.genreText}>{getGeneroPorId(genreId)}</Text>
-                    </View>
+                    <Badge key={genreId} genreId={genreId} />
                 ))}
+
             </View>
             </View>
         </ScrollView>

@@ -1,12 +1,13 @@
 // Tarjetas del contenido audiovisual
+import Badge from '@/src/components/Badge';
 import { useRouter } from 'expo-router';
-import { Dimensions, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Pressable, StyleSheet, View } from 'react-native';
 import { TextPressStart2P } from './TextPressStart2P';
 
 interface ContentCardProps {
     id: string;
     title: string;
-    genre: string;
+    genres: number[];
     image: string;
 }
 
@@ -15,10 +16,11 @@ const CARD_GAP = 12;
 const HORIZONTAL_PADDING = 16;
 const cardWidth = (width - (2 * HORIZONTAL_PADDING) - (2 * CARD_GAP)) / 3;
 
+
 export default function ContentCard({ 
     id, 
     title, 
-    genre, 
+    genres, 
     image 
 }: ContentCardProps) {
 const router = useRouter();
@@ -42,8 +44,10 @@ return (
         </View>
         <View style={styles.infoContainer}>
             <TextPressStart2P style={styles.title} numberOfLines={1}>{title}</TextPressStart2P>
-            <View style={styles.genreTag}>
-                <Text style={styles.genre} numberOfLines={1}>{genre}</Text>
+            <View style={styles.genresContainer}>
+                {genres.map((genreId) => (
+                    <Badge key={genreId} genreId={genreId}/>
+                ))}
             </View>
         </View>
         </Pressable>
@@ -83,13 +87,8 @@ title: {
     color: '#FFFFFF',
     marginBottom: 4,
 },
-// Etiqueta de genero
-genre: {
-    fontSize: 10,
-    color: '#FFFFFF',
-    padding: 4,
-},
-genreTag: {
-    backgroundColor: "#403E43",
+genresContainer: {
+    flexDirection: 'row',
+    gap: 4,
 },
 });

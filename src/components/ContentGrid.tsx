@@ -6,7 +6,7 @@ import { TextPressStart2P } from './TextPressStart2P';
 interface ContentItem {
     id: string;
     title: string;
-    genre: string;
+    genres: number[];
     image: string;
 }
 
@@ -23,7 +23,7 @@ export default function ContentGrid({ title, items }: ContentGridProps) {
         <ContentCard
             id={item.id}
             title={item.title}
-            genre={item.genre}
+            genres={item.genres}
             image={item.image}
         />
 );
