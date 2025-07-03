@@ -12,7 +12,7 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ title, onPress, icon}) => {
     return (
-        <Pressable onPress={onPress} style={styles.BaseButton}>
+        <Pressable onPress={onPress} style={styles.baseButton}>
             {icon && <View style={styles.icon}>{icon}</View>}
             <TextPressStart2P style={styles.title}>{title}</TextPressStart2P>
         </Pressable>
@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({ title, onPress, icon}) => {
 export default Button;
 
 const styles = StyleSheet.create({
-    BaseButton: {
+    baseButton: {
         flexDirection: 'row',
         backgroundColor: '#6E59A5',
         borderWidth:1,

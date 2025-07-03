@@ -1,25 +1,12 @@
 import ContentGrid from '@/src/components/ContentGrid';
 import GameCard from '@/src/components/GameCard';
 import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
-import {
-    IGeneroContenidoAudiovisual,
-    generosContenidoAudiovisual,
-} from "@/src/data/generosContenidoAudiovisual";
-import {
-    ITipoContenidoAudiovisual,
-    tiposContenidoAudiovisual,
-} from "@/src/data/tiposContenidoAudiovisual";
+import { IGeneroContenidoAudiovisual, generosContenidoAudiovisual } from "@/src/data/generosContenidoAudiovisual";
+import { ITipoContenidoAudiovisual, tiposContenidoAudiovisual } from "@/src/data/tiposContenidoAudiovisual";
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-const movies = contenidosAudiovisuales.map(content => ({
-    id: content.id.toString(),
-    title: content.nombre,
-    genre: content.generos.join(', '),
-    image: content.imageUrl
-}));
-
 return (
     <SafeAreaView style={styles.container}>
         <ScrollView
@@ -59,13 +46,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#151521',
     },
     scrollContent: {
-        paddingBottom: 20,
+        paddingBottom: 5,
     },
     gamesContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        marginTop: 16,
         marginBottom: 24,
         gap: 16,
     },
@@ -102,7 +88,7 @@ const buildContentByType = (tipoId: number) => {
         .map(content => ({
             id: content.id.toString(),
             title: content.nombre,
-            genre: content.generos.map(id => getGeneroPorId(id).nombre).join(', '),
+            genres: content.generos,
             image: content.imageUrl
         }));
 };

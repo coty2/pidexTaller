@@ -2,12 +2,12 @@ import ContentGrid from '@/src/components/ContentGrid';
 import GameCard from '@/src/components/GameCard';
 import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
 import {
-  IGeneroContenidoAudiovisual,
-  generosContenidoAudiovisual,
+    IGeneroContenidoAudiovisual,
+    generosContenidoAudiovisual,
 } from "@/src/data/generosContenidoAudiovisual";
 import {
-  ITipoContenidoAudiovisual,
-  tiposContenidoAudiovisual,
+    ITipoContenidoAudiovisual,
+    tiposContenidoAudiovisual,
 } from "@/src/data/tiposContenidoAudiovisual";
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,7 +21,7 @@ const movies = contenidosAudiovisuales.map(content => ({
 }));
 
 return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView  style={styles.container}>
         <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
