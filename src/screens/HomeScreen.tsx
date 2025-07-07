@@ -1,56 +1,101 @@
+// Pantalla principal
 import ContentGrid from '@/src/components/ContentGrid';
 import GameCard from '@/src/components/GameCard';
+import PixdexHeader from '@/src/components/Header';
+import ModalFilter from '@/src/components/ModalFilter';
 import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
-import {
-    IGeneroContenidoAudiovisual,
-    generosContenidoAudiovisual,
-} from "@/src/data/generosContenidoAudiovisual";
-import {
-    ITipoContenidoAudiovisual,
-    tiposContenidoAudiovisual,
-} from "@/src/data/tiposContenidoAudiovisual";
+import { tiposContenidoAudiovisual } from '@/src/data/tiposContenidoAudiovisual';
+import { router } from 'expo-router';
+import { useState } from "react";
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-const movies = contenidosAudiovisuales.map(content => ({
-    id: content.id.toString(),
-    title: content.nombre,
-    genre: content.generos.join(', '),
-    image: content.imageUrl
-}));
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
+    const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
 
-return (
-    <SafeAreaView  style={styles.container}>
-        <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-        >
-        <View style={styles.gamesContainer}>
-            <GameCard
-                title="Desafío del ahorcado"
-                description="Adivina los títulos letra por letra. Cuantos podés identificar?"
-                onPress={() => console.log("Iniciar juego del ahorcado")}
-            />
-            <GameCard
-                title="Pixel Reveal"
-                description="Identificá títulos desde imágenes pixeladas ¡Poné a prueba tu memoria visual!"
-                onPress={() => console.log("Iniciar Pixel Reveal")}
-                backgroundColor="#5FD068"
-            />
-        </View>
+    const buildContentByType = (tipoId: number) => {
+        return contenidosAudiovisuales
+            .filter(content => content.tipoId === tipoId)
+            .map(content => ({
+                id: content.id.toString(),
+                title: content.nombre,
+                genres: content.generos,
+                image: String(content.imageUrl)
+            }));
+    };
 
-        {tiposContenidoAudiovisual.map((tipo) => (
-            <ContentGrid
-                key={tipo.id}
-                title={tipo.plural.toUpperCase()}
-                items={buildContentByType(tipo.id)}
+
+    const contenidosFiltrados = contenidosAudiovisuales.filter((c) => {
+        const okTipo = selectedTypes.length === 0 || selectedTypes.includes(c.tipoId);
+        const okGenero = selectedGenres.length === 0 || c.generos.some((g) => selectedGenres.includes(g));
+        return okTipo && okGenero;
+    });
+
+
+    const tiposAMostrar = selectedTypes.length === 0
+        ? tiposContenidoAudiovisual
+        : tiposContenidoAudiovisual.filter((t) => selectedTypes.includes(t.id));
+
+    const handleApplyFilters = (types: number[], genres: number[]) => {
+        setSelectedTypes(types);
+        setSelectedGenres(genres);
+        setModalVisible(false);
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <PixdexHeader onFilterPress={() => setModalVisible(true)} />
+            
+            <ModalFilter
+                visible={modalVisible}
+                onCancel={() => setModalVisible(false)}
+                onApply={handleApplyFilters}
             />
-        ))}
-        
-        </ScrollView>
-    </SafeAreaView>
-);
+            
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                <View style={styles.gamesContainer}>
+                    <GameCard
+                        title="Desafío del ahorcado"
+                        description="Adivina los títulos letra por letra. Cuantos podés identificar?"
+                        onPress={() => router.push("/games/hangman")}
+                    />
+                    <GameCard
+                        title="Pixel Reveal"
+                        description="Identificá títulos desde imágenes pixeladas ¡Poné a prueba tu memoria visual!"
+                        onPress={() => console.log("Iniciar Pixel Reveal")}
+                        backgroundColor="#5FD068"
+                    />
+                </View>
+
+                {tiposAMostrar.map((tipo) => {
+                    const items = contenidosFiltrados
+                        .filter((c) => c.tipoId === tipo.id)
+                        .map((c) => ({
+                            id: c.id.toString(),
+                            title: c.nombre,
+                            genres: c.generos,
+                            image: String(c.imageUrl),
+                        }));
+
+                    
+                    if (items.length === 0) return null;
+
+                    return (
+                        <ContentGrid
+                            key={tipo.id}
+                            title={tipo.plural.toUpperCase()}
+                            items={items}
+                        />
+                    );
+                })}
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -59,50 +104,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#151521',
     },
     scrollContent: {
-        paddingBottom: 20,
+        paddingBottom: 5,
     },
     gamesContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        marginTop: 16,
         marginBottom: 24,
         gap: 16,
     },
 });
-
-
-/**
- * Busca un genero por su id y lo retorna. En caso de no encontrarlo, retorna un genero con el id consultado y nombre "-"
- * @param id number
- * @returns IGeneroContenidoAudiovisual
- */
-function getGeneroPorId(id: number): IGeneroContenidoAudiovisual {
-    const fallback = { id: id, nombre: "-" };
-    return (
-    generosContenidoAudiovisual.find((genero) => genero.id === id) ?? fallback
-);
-}
-
-/**
- * Busca un tipo por su id y lo retorna. En caso de no encontrarlo, retorna un tipo con el id consultado y nombre "-"
- * @param id number
- * @returns ITipoContenidoAudiovisual
- */
-function getTipoPorId(id: number): ITipoContenidoAudiovisual {
-    const fallback = { id: id, singular: "-", plural: "-" };
-    return (
-        tiposContenidoAudiovisual.find((contenido) => contenido.id === id) ??
-        fallback
-    );
-}
-const buildContentByType = (tipoId: number) => {
-    return contenidosAudiovisuales
-        .filter(content => content.tipoId === tipoId)
-        .map(content => ({
-            id: content.id.toString(),
-            title: content.nombre,
-            genre: content.generos.map(id => getGeneroPorId(id).nombre).join(', '),
-            image: content.imageUrl
-        }));
-};
