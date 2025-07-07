@@ -1,6 +1,6 @@
 // Seccion de arriba con los juegos
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text } from "react-native";
 import { TextPressStart2P } from "./TextPressStart2P";
 
 interface GameCardProps {
@@ -12,13 +12,11 @@ interface GameCardProps {
 
 const GameCard: React.FC<GameCardProps> = ({ title, description, onPress, backgroundColor = "#6E59A5", }) => {
     return (
-        <View style={[styles.card, { backgroundColor }]}>
+        <Pressable onPress={onPress} style={[styles.card, { backgroundColor }]}>
             <TextPressStart2P style={styles.title}>{title} </TextPressStart2P>
             <Text style={styles.description}>{description}</Text>
-            <Pressable onPress={onPress}>
-                <TextPressStart2P style={styles.playText}>Jugar</TextPressStart2P>
-            </Pressable>
-        </View>
+            <TextPressStart2P style={styles.playText}>Jugar</TextPressStart2P>
+        </Pressable>
     );
 };
 

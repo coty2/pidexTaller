@@ -1,16 +1,14 @@
 import Button from "@/src/components/Button";
-import Header from "@/src/components/Header";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 
 export function RootLayout() {
-
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          header: () => <Header onFiltrar={() => console.log("Filtrar action triggered")} />,
+          headerShown: false,
         }}
       />
       
@@ -28,6 +26,14 @@ export function RootLayout() {
           ),
         })}
       />
+
+      <Stack.Screen
+        name="games/hangman/index"
+        options={{ 
+          headerShown: false 
+        }}
+      />
+
     </Stack>
   );
 }
