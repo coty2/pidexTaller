@@ -3,17 +3,55 @@ import ContentGrid from '@/src/components/ContentGrid';
 import GameCard from '@/src/components/GameCard';
 import PixdexHeader from '@/src/components/Header';
 import ModalFilter from '@/src/components/ModalFilter';
-import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
-import { tiposContenidoAudiovisual } from '@/src/data/tiposContenidoAudiovisual';
 import { router } from 'expo-router';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+
+interface ContenidoAudiovisual {
+    id: number;
+    nombre: string;
+    tipoId: number;
+    generos: number[];
+    imageUrl: string;
+}
+
+interface TipoContenidoAudiovisual {
+    id: number;
+    nombre: string;
+    plural: string;
+}
 
 export default function HomeScreen() {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
     const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+    const [contenidosAudiovisuales, setContenidosAudiovisuales] = useState<ContenidoAudiovisual[]>([]);
+    const [tiposContenidoAudiovisual, setTiposContenidoAudiovisual] = useState<TipoContenidoAudiovisual[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                
+                const contenidosResponse = await fetch('/contenidos');
+                const contenidosData = await contenidosResponse.json();
+                setContenidosAudiovisuales(contenidosData);
+
+                const tiposResponse = await fetch('/tipos');
+                const tiposData = await tiposResponse.json();
+                setTiposContenidoAudiovisual(tiposData);
+            } catch (error) {
+                console.error('Error al cargar los datos:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const buildContentByType = (tipoId: number) => {
         return contenidosAudiovisuales
@@ -26,13 +64,11 @@ export default function HomeScreen() {
             }));
     };
 
-
     const contenidosFiltrados = contenidosAudiovisuales.filter((c) => {
         const okTipo = selectedTypes.length === 0 || selectedTypes.includes(c.tipoId);
         const okGenero = selectedGenres.length === 0 || c.generos.some((g) => selectedGenres.includes(g));
         return okTipo && okGenero;
     });
-
 
     const tiposAMostrar = selectedTypes.length === 0
         ? tiposContenidoAudiovisual
@@ -43,6 +79,8 @@ export default function HomeScreen() {
         setSelectedGenres(genres);
         setModalVisible(false);
     };
+
+    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -112,5 +150,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         marginBottom: 24,
         gap: 16,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

@@ -1,26 +1,89 @@
 // Cada tarjeta de contenido audiovisual
 import Badge from '@/src/components/Badge';
 import { TextPressStart2P } from '@/src/components/TextPressStart2P';
-import { contenidosAudiovisuales } from '@/src/data/contenidosAudiovisuales';
-import { tiposContenidoAudiovisual } from '@/src/data/tiposContenidoAudiovisual';
 import { useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+interface ContenidoAudiovisual {
+    id: number;
+    nombre: string;
+    tipoId: number;
+    generos: number[];
+    imageUrl: string;
+    descripcion: string;
+}
+
+interface TipoContenidoAudiovisual {
+    id: number;
+    nombre: string;
+    singular: string;
+}
+
 export default function DetailScreen() {
     const { id } = useLocalSearchParams();
-    
-    const content = contenidosAudiovisuales.find(c => c.id === Number(id));
+    const [content, setContent] = useState<ContenidoAudiovisual | null>(null);
+    const [typeContent, setTypeContent] = useState<TipoContenidoAudiovisual | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    if (!content) {
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+
+                const contenidosResponse = await fetch('/contenidos');
+                const contenidosData: ContenidoAudiovisual[] = await contenidosResponse.json();
+                
+            
+                const foundContent = contenidosData.find(c => c.id === Number(id));
+                if (!foundContent) {
+                    setError('Contenido no encontrado');
+                    setLoading(false);
+                    return;
+                }
+                
+                setContent(foundContent);
+                
+
+                const tiposResponse = await fetch('/tipos');
+                const tiposData: TipoContenidoAudiovisual[] = await tiposResponse.json();
+                
+                const foundType = tiposData.find(t => t.id === foundContent.tipoId);
+                setTypeContent(foundType || null);
+                
+            } catch (error) {
+                console.error('Error al cargar los datos:', error);
+                setError('Error al cargar el contenido');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchData();
+        }
+    }, [id]);
+
+    if (loading) {
         return (
             <SafeAreaView style={styles.container}>
-                <Text style={styles.errorText}>Contenido no encontrado</Text>
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Cargando...</Text>
+                </View>
             </SafeAreaView>
         );
     }
 
-    const typeContent = tiposContenidoAudiovisual.find(t => t.id === content.tipoId);
+    if (error || !content) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.errorText}>{error || 'Contenido no encontrado'}</Text>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -105,6 +168,18 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         textAlign: 'center',
         marginTop: 20,
+    },
+    loadingText: {
+        fontFamily: 'VT323',
+        fontSize: 18,
+        color: '#FFFFFF',
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     genre: {
         fontSize: 14,
